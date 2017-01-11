@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">AppAutobuses</string>
+    <string name="mensajeBienvenida">Bienvenidos a AppAutoBuses</string>
+    <string name="mensajeLogueo">Inserta la matricula</string>
+    <string name="insertaAqui">Inserta Aquí</string>
+    <string name="mensajePassword">Inserta la contraseña</string>
+    <string name="botonEnviar">Enviar</string>
 </resources>
