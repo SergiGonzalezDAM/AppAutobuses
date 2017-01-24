@@ -11,4 +11,36 @@
     tools:context="com.sergigonzalez.appautobuses.SPosiciones"
     android:background="@drawable/fondo">
 
+    <Button
+        android:text="Finalizar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:id="@+id/btnFin" />
+
+    <TextView
+        android:text="No funciona"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="29dp"
+        android:id="@+id/textViewDisplay"
+        android:textSize="18sp"
+        android:layout_marginLeft="17dp"
+        android:layout_marginStart="17dp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/textViewHora"
+        android:layout_toEndOf="@+id/textViewHora" />
+
+    <TextView
+        android:text="Hora inicio:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewHora"
+        android:textSize="18sp"
+        android:layout_alignBaseline="@+id/textViewDisplay"
+        android:layout_alignBottom="@+id/textViewDisplay"
+        android:layout_toLeftOf="@+id/btnFin"
+        android:layout_toStartOf="@+id/btnFin" />
 </RelativeLayout>
