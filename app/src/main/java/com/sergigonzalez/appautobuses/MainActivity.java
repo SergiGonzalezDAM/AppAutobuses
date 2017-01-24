@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonMainSend = (Button) findViewById(R.id.btnMainSend);
         buttonMainSend.setOnClickListener(this);
         anyadirDatos(db);
-        if (isMyServiceRunning(ServicioPosiciones.class)){
+        if (isMyServiceRunning(SPosiciones.class)) {
 
         }
         //cerrarDB(db);
