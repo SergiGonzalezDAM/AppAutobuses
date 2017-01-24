@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class BDAutobuses extends SQLiteOpenHelper {
 
     private String[] sentenciasTablas = {"CREATE TABLE usuarios (matricula VARCHAR2(7),password VARCHAR2(40))", "CREATE TABLE posiciones (matricula VARCHAR2(7)," +
-            "posX INTEGER, posY INTEGER posZ INTEGER"};
+            "posX NUMBER, posY NUMBER posZ NUMBER)"};
 
     public BDAutobuses(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
