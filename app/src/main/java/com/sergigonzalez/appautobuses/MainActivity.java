@@ -8,7 +8,8 @@ public class MainActivity extends AppCompatActivity {
     private String[] sentenciasInsert = {"INSERT INTO usuarios VALUES('4617DNO', supervaca)", "INSERT INTO usuarios VALUES('8357YNP', superconejo)"};
     private String consulta ="SELECT matricula, password FROM usuarios ";
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BDAutobuses usdbh = new BDAutobuses(this, "DBHorarioDAM", null, 1);
