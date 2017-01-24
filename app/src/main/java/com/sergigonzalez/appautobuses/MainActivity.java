@@ -1,5 +1,7 @@
 package com.sergigonzalez.appautobuses;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button buttonMainSend;
     SQLiteDatabase db;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +32,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonMainSend = (Button) findViewById(R.id.btnMainSend);
         buttonMainSend.setOnClickListener(this);
         anyadirDatos(db);
+        if (isMyServiceRunning(ServicioPosiciones.class)){
+
+        }
         //cerrarDB(db);
     }
 
@@ -61,5 +67,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (login(db)) {
             startService(new Intent(MainActivity.this, ServicioPosiciones.class));
         }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
