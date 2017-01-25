@@ -1,6 +1,7 @@
 package com.sergigonzalez.appautobuses;
 
 import android.app.ActivityManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -65,7 +66,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if (login(db)) {
-            startService(new Intent(MainActivity.this, SPosiciones.class));
+            startService(new Intent(MainActivity.this, Servicio.class));
+            Intent i = new Intent(this,SPosiciones.class);
+            startActivity(i);
         }
     }
 
