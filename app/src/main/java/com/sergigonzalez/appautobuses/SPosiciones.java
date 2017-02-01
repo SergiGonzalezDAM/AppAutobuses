@@ -6,19 +6,21 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class SPosiciones extends AppCompatActivity implements View.OnClickListener {
+public class SPosiciones extends AppCompatActivity implements View.OnClickListener
+{
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sposiciones);
         Button btnFin = (Button) findViewById(R.id.btnFin);
         btnFin.setOnClickListener(this);
-
     }
 
     @Override
-    public void onClick(View view) {
+    public void onClick(View view)
+    {
         if (R.id.btnFin == view.getId())
         {
             Intent i = new Intent(this,MainActivity.class);
