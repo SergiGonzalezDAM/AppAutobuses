@@ -3,6 +3,7 @@ package com.sergigonzalez.appautobuses;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -47,17 +48,19 @@ public class Servicio extends Service
     public void onCreate()
     {
         //Construcción cliente API Google
-        apiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
+        apiClient = new GoogleApiClient.Builder(this).addOnConnectionFailedListener(this)
                 .addConnectionCallbacks(this)
                 .addApi(LocationServices.API)
                 .build();
+        System.out.println("Servicio iniciado");
     }
     //Este código lo lanza cuando se lanza la app
     @Override
     public int onStartCommand(Intent intenc, int flags, int idArranque)
     {
+        System.out.println("OnStartCommand lanzado");
         enableLocationUpdates();
+        return START_STICKY;
     }
 
     @Override
@@ -74,7 +77,7 @@ public class Servicio extends Service
     }
     private void enableLocationUpdates() {
 
-
+        locRequest = new LocationRequest();
         locRequest.setInterval(2000);
         locRequest.setFastestInterval(1000);
         locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -100,14 +103,8 @@ public class Servicio extends Service
 
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try {
-                            Log.i(LOGTAG, "Se requiere actuación del usuario");
-                            status.startResolutionForResult(MainActivity.this, PETICION_CONFIG_UBICACION);
-                        } catch (IntentSender.SendIntentException e) {
-
-                            Log.i(LOGTAG, "Error al intentar solucionar configuración de ubicación");
-                        }
-
+                        Log.i(LOGTAG, "Se requiere actuación del usuario");
+                        //TODO toast
                         break;
                     case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                         Log.i(LOGTAG, "No se puede cumplir la configuración de ubicación necesaria");
@@ -126,16 +123,14 @@ public class Servicio extends Service
     }
 
     private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (checkPermission(this)) {
 
-            //Ojo: estamos suponiendo que ya tenemos concedido el permiso.
-            //Sería recomendable implementar la posible petición en caso de no tenerlo.
+            //SUPONEMOS QUE YA TENEMOS LOS PERMISOS DEL MAIN.
 
             Log.i(LOGTAG, "Inicio de recepción de ubicaciones");
 
             LocationServices.FusedLocationApi.requestLocationUpdates(
-                    apiClient, locRequest, MainActivity.this);
+                    apiClient, locRequest, this);
         }
     }
 
@@ -151,18 +146,10 @@ public class Servicio extends Service
     public void onConnected(@Nullable Bundle bundle) {
         //Conectado correctamente a Google Play Services
 
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PETICION_PERMISO_LOCALIZACION);
-        } else {
-
+        if (checkPermission(this)) {
             Location lastLocation =
                     LocationServices.FusedLocationApi.getLastLocation(apiClient);
 
-            //updateUI(lastLocation);
         }
     }
 
@@ -227,9 +214,15 @@ public class Servicio extends Service
     public void onLocationChanged(Location location) {
 
         Log.i(LOGTAG, "Recibida nueva ubicación!");
-
-        //Mostramos la nueva ubicación recibida
+        System.out.println("nueva ubicacion");
+        //TODO aqui guarmamos las ubicaciones
+        Toast.makeText(this, "nueva ubicacion recibida", Toast.LENGTH_SHORT).show();
         //updateUI(location);
+    }
+
+    public static boolean checkPermission(final Context context) {
+        return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
 }
