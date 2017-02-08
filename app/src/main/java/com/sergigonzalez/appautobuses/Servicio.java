@@ -95,6 +95,7 @@ public class Servicio extends Service
             @Override
             public void onResult(LocationSettingsResult locationSettingsResult) {
                 final Status status = locationSettingsResult.getStatus();
+                System.out.println("HOOLAAA");
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
 
@@ -131,6 +132,9 @@ public class Servicio extends Service
 
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     apiClient, locRequest, this);
+        }
+        else{
+            System.out.println("Permisos insuficientes");
         }
     }
 
