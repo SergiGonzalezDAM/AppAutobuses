@@ -14,10 +14,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -70,14 +72,13 @@ public class Servicio extends Service
 
     private void enableLocationUpdates() {
 
-        if(checkPermission(this)) {
+        if (checkPermission(this)) {
             locRequest = new LocationRequest();
             locRequest.setInterval(2000);
             locRequest.setFastestInterval(1000);
             locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             startLocationUpdates();
-        }
-        else{
+        } else {
             Toast.makeText(this, "Fallo de permisos", Toast.LENGTH_SHORT).show();
             Log.i(LOGTAG, "Fallo de permisos");
         }
@@ -121,7 +122,7 @@ public class Servicio extends Service
     @Override
     public void onLocationChanged(Location location) {
         Log.i(LOGTAG, "Recibida nueva ubicación!");
-        BDAutobuses usdbh = new BDAutobuses(this, "DBHorarioDAM", null, 1);
+        BDAutobuses usdbh = new BDAutobuses(this, "DBHorarioDAM", null, MainActivity.VERSIO_BBDD);
         SQLiteDatabase db = usdbh.getWritableDatabase();
         String aux = "INSERT INTO posiciones VALUES(?,?,?,?)";
         SQLiteStatement sql = db.compileStatement(aux);

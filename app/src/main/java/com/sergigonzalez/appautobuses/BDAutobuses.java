@@ -33,7 +33,20 @@ class BDAutobuses extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        if (db != null) {
+            String borrarTaulaUsuaris = "DROP TABLE usuarios";
+            String borrarTaulaPosicions = "DROP TABLE posiciones";
+            db.execSQL(borrarTaulaPosicions);
+            db.execSQL(borrarTaulaUsuaris);
 
+            for (String sentenciasTabla : sentenciasTablas) {
+                db.execSQL(sentenciasTabla);
+            }
+            //Insertamos usuarios
+            for (String aSentenciasInsert : sentenciasInsert) {
+                db.execSQL(aSentenciasInsert);
+            }
+        }
     }
 }

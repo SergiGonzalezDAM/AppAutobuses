@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText editTextPassword;
     private Button buttonMainSend;
     private SQLiteDatabase db;
+    protected final static int VERSIO_BBDD=2;
     final private int PERMISSION_LOCATION_REQUEST_CODE = 666;
 
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BDAutobuses usdbh = new BDAutobuses(this, "DBHorarioDAM", null, 1);
+        BDAutobuses usdbh = new BDAutobuses(this, "DBHorarioDAM", null, VERSIO_BBDD);
         db = usdbh.getWritableDatabase();
         editTextMatricula = (EditText) findViewById(R.id.editText2);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
