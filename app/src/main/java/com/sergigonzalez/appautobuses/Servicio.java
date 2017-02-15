@@ -70,13 +70,17 @@ public class Servicio extends Service
 
     private void enableLocationUpdates() {
 
-        //Hemos comprobado en el main que los permisos son correctos.
-        locRequest = new LocationRequest();
-        locRequest.setInterval(2000);
-        locRequest.setFastestInterval(1000);
-        locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        startLocationUpdates();
+        if(checkPermission(this)) {
+            locRequest = new LocationRequest();
+            locRequest.setInterval(2000);
+            locRequest.setFastestInterval(1000);
+            locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            startLocationUpdates();
+        }
+        else{
+            Toast.makeText(this, "Fallo de permisos", Toast.LENGTH_SHORT).show();
+            Log.i(LOGTAG, "Fallo de permisos");
+        }
     }
 
     private void disableLocationUpdates() {
