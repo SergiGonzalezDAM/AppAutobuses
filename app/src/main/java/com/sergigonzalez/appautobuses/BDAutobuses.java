@@ -8,12 +8,12 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by ALUMNEDAM on 11/01/2017.
  */
 
-public class BDAutobuses extends SQLiteOpenHelper {
+class BDAutobuses extends SQLiteOpenHelper {
 
     private String[] sentenciasTablas = {"CREATE TABLE usuarios (matricula VARCHAR2(7),password VARCHAR2(40))", "CREATE TABLE posiciones (matricula VARCHAR2(7)," +
-            "posX NUMBER, posY NUMBER posZ NUMBER)"};
-
-    public BDAutobuses(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+            "posX NUMBER, posY NUMBER, fecha String)"};
+    private String[] sentenciasInsert = {"INSERT INTO usuarios VALUES('4617DNO', 'supervaca')", "INSERT INTO usuarios VALUES('8357YNP', 'superconejo')"};
+    BDAutobuses(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
@@ -21,8 +21,12 @@ public class BDAutobuses extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         if (db != null) {
             //Creamos tablas
-            for (int i = 0; i < sentenciasTablas.length; i++) {
-                db.execSQL(sentenciasTablas[i]);
+            for (String sentenciasTabla : sentenciasTablas) {
+                db.execSQL(sentenciasTabla);
+            }
+            //Insertamos usuarios
+            for (String aSentenciasInsert : sentenciasInsert) {
+                db.execSQL(aSentenciasInsert);
             }
         }
     }

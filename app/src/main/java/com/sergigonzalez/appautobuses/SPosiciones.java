@@ -9,6 +9,7 @@ import android.widget.Button;
 public class SPosiciones extends AppCompatActivity implements View.OnClickListener
 {
 
+    String matricula;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -16,6 +17,13 @@ public class SPosiciones extends AppCompatActivity implements View.OnClickListen
         setContentView(R.layout.activity_sposiciones);
         Button btnFin = (Button) findViewById(R.id.btnFin);
         btnFin.setOnClickListener(this);
+        Intent servi = new Intent(SPosiciones.this, Servicio.class);
+        if (savedInstanceState == null) {
+            Intent extras = getIntent();
+            matricula=extras.getStringExtra("matricula");
+        }
+        servi.putExtra("matricula",matricula);
+        startService(servi);
     }
 
     @Override
@@ -25,8 +33,8 @@ public class SPosiciones extends AppCompatActivity implements View.OnClickListen
         {
             Intent i = new Intent(this,MainActivity.class);
             stopService(new Intent(SPosiciones.this, Servicio.class));
-            startActivity(i);
-            System.exit(0);
+            //startActivity(i);
+            finish();
         }
     }
 }
