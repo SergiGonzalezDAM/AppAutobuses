@@ -31,9 +31,7 @@ public class SPosiciones extends AppCompatActivity implements View.OnClickListen
     {
         if (R.id.btnFin == view.getId())
         {
-            Intent i = new Intent(this,MainActivity.class);
             stopService(new Intent(SPosiciones.this, Servicio.class));
-            //startActivity(i);
             finish();
         }
     }

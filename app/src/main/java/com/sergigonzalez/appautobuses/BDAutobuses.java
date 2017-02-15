@@ -13,6 +13,7 @@ class BDAutobuses extends SQLiteOpenHelper {
     private String[] sentenciasTablas = {"CREATE TABLE usuarios (matricula VARCHAR2(7),password VARCHAR2(40))", "CREATE TABLE posiciones (matricula VARCHAR2(7)," +
             "posX NUMBER, posY NUMBER, fecha String)"};
     private String[] sentenciasInsert = {"INSERT INTO usuarios VALUES('4617DNO', 'supervaca')", "INSERT INTO usuarios VALUES('8357YNP', 'superconejo')"};
+
     BDAutobuses(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
