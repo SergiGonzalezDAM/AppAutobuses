@@ -145,7 +145,7 @@ public class Servicio extends Service
         sql.bindString(4, da);
         sql.execute();
         db.close();
-        tareaWSInsertarPosicion.execute(matricula, location.getLatitude(), location.getLongitude(), da);
+        tareaWSInsertarPosicion.execute(Double.toString(location.getLatitude()), Double.toString(location.getLongitude()), da);
     }
 
     public static boolean checkPermission(final Context context) {
@@ -161,24 +161,25 @@ public class Servicio extends Service
 
             HttpClient httpClient = new DefaultHttpClient();
 
-            HttpPost post = new HttpPost("http://localhost:8080/ServicioWeb/webresources/generic/insertarPosicion");
+            HttpPost post = new HttpPost("http://192.168.120.112:8080/ServicioWeb/webresources/generic/insertarPosicion");
             post.setHeader("content-type", "application/json");
-
+            System.out.println("hola");
             try {
                 //Construimos el objeto posicion en formato JSON
                 JSONObject dato = new JSONObject();
-                dato.put("matricula", params[0]);
-                dato.put("posX", Double.parseDouble(params[1]));
-                dato.put("posY", Double.parseDouble(params[2]));
-                dato.put("fecha", params[3]);
+                dato.put("matricula",matricula);
+                dato.put("posx", Double.parseDouble(params[0]));
+                dato.put("posy", Double.parseDouble(params[1]));
+                dato.put("fecha", params[2]);
                 StringEntity entity = new StringEntity(dato.toString());
                 post.setEntity(entity);
-
                 HttpResponse resp = httpClient.execute(post);
                 String respStr = EntityUtils.toString(resp.getEntity());
-
-                if (!respStr.equals("true"))
+                System.out.println("roger");
+                if (!respStr.equals("true")) {
                     resul = false;
+                    System.out.println("roger 2");
+                }
             } catch (Exception ex) {
                 Log.e("ServicioRest", "Error!", ex);
                 resul = false;
@@ -187,7 +188,7 @@ public class Servicio extends Service
         }
 
         protected void onPostExecute(Boolean result) {
-
+            System.out.println("hola");
             if (!result) {
                 Log.i("Servicio", "No ha funcionado la insercion");
             } else {
