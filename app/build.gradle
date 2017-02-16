@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    useLibrary 'org.apache.http.legacy'
     compileSdkVersion 25
     buildToolsVersion "25.0.1"
     defaultConfig {
@@ -28,4 +29,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     compile 'com.google.android.gms:play-services-location:9.4.0'
+    compile 'org.apache.httpcomponents:httpcore:4.4.1'
+    compile 'org.apache.httpcomponents:httpclient:4.5'
 }

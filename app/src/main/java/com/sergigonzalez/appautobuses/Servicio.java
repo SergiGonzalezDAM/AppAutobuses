@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -19,6 +20,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -36,6 +45,7 @@ public class Servicio extends Service
     private LocationRequest locRequest;
     private static final String LOGTAG = "android-localizacion";
     private String matricula;
+    private TareaWSInsertarPosicion tareaWSInsertarPosicion;
 
     @Override
 
@@ -46,6 +56,7 @@ public class Servicio extends Service
                 .addApi(LocationServices.API)
                 .build();
         apiClient.connect();
+        tareaWSInsertarPosicion = new TareaWSInsertarPosicion();
         Log.i(LOGTAG, "Servicio inicidado");
     }
 
@@ -134,6 +145,7 @@ public class Servicio extends Service
         sql.bindString(4, da);
         sql.execute();
         db.close();
+        tareaWSInsertarPosicion.execute(matricula, location.getLatitude(), location.getLongitude(), da);
     }
 
     public static boolean checkPermission(final Context context) {
@@ -141,4 +153,48 @@ public class Servicio extends Service
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
+    class TareaWSInsertarPosicion extends AsyncTask<String, Integer, Boolean> {
+
+        protected Boolean doInBackground(String... params) {
+
+            boolean resul = true;
+
+            HttpClient httpClient = new DefaultHttpClient();
+
+            HttpPost post = new HttpPost("http://localhost:8080/ServicioWeb/webresources/generic/insertarPosicion");
+            post.setHeader("content-type", "application/json");
+
+            try {
+                //Construimos el objeto posicion en formato JSON
+                JSONObject dato = new JSONObject();
+                dato.put("matricula", params[0]);
+                dato.put("posX", Double.parseDouble(params[1]));
+                dato.put("posY", Double.parseDouble(params[2]));
+                dato.put("fecha", params[3]);
+                StringEntity entity = new StringEntity(dato.toString());
+                post.setEntity(entity);
+
+                HttpResponse resp = httpClient.execute(post);
+                String respStr = EntityUtils.toString(resp.getEntity());
+
+                if (!respStr.equals("true"))
+                    resul = false;
+            } catch (Exception ex) {
+                Log.e("ServicioRest", "Error!", ex);
+                resul = false;
+            }
+            return resul;
+        }
+
+        protected void onPostExecute(Boolean result) {
+
+            if (!result) {
+                Log.i("Servicio", "No ha funcionado la insercion");
+            } else {
+                Log.i("Servicio", "Ha funcionado la insercion");
+            }
+        }
+
+
+    }
 }
