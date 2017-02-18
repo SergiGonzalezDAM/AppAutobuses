@@ -17,13 +17,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Projecte APPAutobuses
+ * @author Abel Serrano, Sergi Gonazalez, Roger G.
+ * Created by ALUMNEDAM on 20/12/2016.
+ */
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText editTextMatricula;
     private EditText editTextPassword;
     private Button buttonMainSend;
     private SQLiteDatabase db;
-    protected final static int VERSIO_BBDD=2;
+    protected final static int VERSIO_BBDD=3;
     final private int PERMISSION_LOCATION_REQUEST_CODE = 666;
 
 
@@ -81,6 +87,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+    /**
+     * Starts the second activity. Note that second activity attemps to create a new
+     * Service if not running, because of that, we need to make sure before executing this method
+     * that we have the necessary permisions needed by the service.
+     */
     public void launch() {
         Intent i = new Intent(this, SPosiciones.class);
         i.putExtra("matricula", editTextMatricula.getText().toString());

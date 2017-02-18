@@ -6,6 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ * Projecte APPAutobuses
+ * @author Abel Serrano, Sergi Gonazalez, Roger G.
+ * Created by ALUMNEDAM on 20/12/2016.
+ */
+
 public class SPosiciones extends AppCompatActivity implements View.OnClickListener
 {
 
@@ -21,9 +27,10 @@ public class SPosiciones extends AppCompatActivity implements View.OnClickListen
         if (savedInstanceState == null) {
             Intent extras = getIntent();
             matricula=extras.getStringExtra("matricula");
+            servi.putExtra("matricula",matricula);
+            startService(servi);
         }
-        servi.putExtra("matricula",matricula);
-        startService(servi);
+
     }
 
     @Override

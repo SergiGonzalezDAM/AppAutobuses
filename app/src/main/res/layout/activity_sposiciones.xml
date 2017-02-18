@@ -21,26 +21,14 @@
         android:id="@+id/btnFin" />
 
     <TextView
-        android:text="No funciona"
+        android:text="Sistema de recogida de posiciones  trabajando en Segundo plano.\n\n Puede salir de la aplicación.\n \n\n Pulse Finalizar para finalizar su turno y parar la recogida de ubicaciones."
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="29dp"
-        android:id="@+id/textViewDisplay"
-        android:textSize="18sp"
-        android:layout_marginLeft="17dp"
-        android:layout_marginStart="17dp"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/textViewHora"
-        android:layout_toEndOf="@+id/textViewHora" />
+        android:layout_centerHorizontal="true"
+        android:id="@+id/textView"
+        android:textAlignment="center"
+        android:textStyle="normal|bold"
+        android:textSize="24sp" />
 
-    <TextView
-        android:text="Hora inicio:"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textViewHora"
-        android:textSize="18sp"
-        android:layout_alignBaseline="@+id/textViewDisplay"
-        android:layout_alignBottom="@+id/textViewDisplay"
-        android:layout_toLeftOf="@+id/btnFin"
-        android:layout_toStartOf="@+id/btnFin" />
 </RelativeLayout>

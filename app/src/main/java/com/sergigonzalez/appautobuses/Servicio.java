@@ -11,6 +11,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -21,31 +22,37 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 
 /**
- * Created by ALUMNEDAM on 20/12/2016.
+ * Projecte APPAutobuses
+ *
+ * @author Abel Serrano, Sergi Gonazalez, Roger G.
+ *         Created by ALUMNEDAM on 20/12/2016.
  */
 
 public class Servicio extends Service
         implements GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
         com.google.android.gms.location.LocationListener {
+    private static final String LOGTAG = "android-localizacion";
+    SQLiteDatabase db;
     private GoogleApiClient apiClient;
     private LocationRequest locRequest;
-    private static final String LOGTAG = "android-localizacion";
     private String matricula;
-    private TareaWSInsertarPosicion tareaWSInsertarPosicion;
+
+    private static final int TEMPS_ACTUALITZACIO_POSICIONES = 8000;
+    private static final int MINIM_TEMPS_ACTUALITZACIO_POSICIONES = 5000;
+
 
     @Override
 
@@ -56,14 +63,13 @@ public class Servicio extends Service
                 .addApi(LocationServices.API)
                 .build();
         apiClient.connect();
-        tareaWSInsertarPosicion = new TareaWSInsertarPosicion();
-        Log.i(LOGTAG, "Servicio inicidado");
+        db = new BDAutobuses(this, "DBHorarioDAM", null, MainActivity.VERSIO_BBDD).getWritableDatabase();
+        Log.d(LOGTAG, "Servicio inicidado");
     }
-
 
     @Override
     public int onStartCommand(Intent intenc, int flags, int idArranque) {
-        Log.i(LOGTAG, "onStartCommand");
+        Log.d(LOGTAG, "onStartCommand");
         if (intenc.hasExtra("matricula")) {
             matricula = intenc.getStringExtra("matricula");
         }
@@ -73,6 +79,7 @@ public class Servicio extends Service
     @Override
     public void onDestroy() {
         disableLocationUpdates();
+        db.close();
         Log.i(LOGTAG, "Servicio detenido");
     }
 
@@ -85,21 +92,38 @@ public class Servicio extends Service
 
         if (checkPermission(this)) {
             locRequest = new LocationRequest();
-            locRequest.setInterval(2000);
-            locRequest.setFastestInterval(1000);
+            locRequest.setInterval(TEMPS_ACTUALITZACIO_POSICIONES);
+            //No es capturaran posicions si no ha pasat el temps minim entre la recepcio de la ultima.
+            locRequest.setFastestInterval(MINIM_TEMPS_ACTUALITZACIO_POSICIONES);
             locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             startLocationUpdates();
         } else {
             Toast.makeText(this, "Fallo de permisos", Toast.LENGTH_SHORT).show();
-            Log.i(LOGTAG, "Fallo de permisos");
+            Log.e(LOGTAG, "Fallo de permisos");
         }
     }
 
+    /**
+     * Comproba si l'usuari te els permisos adecuats per a l'execució de l'aplicacio.
+     * @param context Context de l'aplicacio
+     * @return boolean amb el resultat de la consulta de permisos.
+     */
+    public static boolean checkPermission(final Context context) {
+        return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * Desactiva la actualitzacio d'ubicacions
+     */
     private void disableLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 apiClient, this);
     }
 
+    /**
+     * Inicia la actualitzacio d'ubicacions
+     */
     private void startLocationUpdates() {
         if (checkPermission(this)) {
             Toast.makeText(this, "Inicio de recepcion de ubicaciones", Toast.LENGTH_SHORT).show();
@@ -109,18 +133,18 @@ public class Servicio extends Service
                     apiClient, locRequest, this);
         } else {
             Toast.makeText(this, "Permisos insuficientes", Toast.LENGTH_SHORT).show();
-            System.out.println("Permisos insuficientes");
+            Log.e(LOGTAG, "Permisos insuficientes");
         }
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
         Log.e(LOGTAG, "Error grave al conectar con Google Play Services");
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i(LOGTAG, "Conectado correctamente a Google Play Services");
+        Log.d(LOGTAG, "Conectado correctamente a Google Play Services");
         enableLocationUpdates();
     }
 
@@ -129,73 +153,111 @@ public class Servicio extends Service
         Log.e(LOGTAG, "Se ha interrumpido la conexión con Google Play Services");
     }
 
-
+    /**
+     * En cambiar la ubicacio del dispositiu, inicia una AsyncTask que inserta la posicio a les BBDD
+     * @param location
+     */
     @Override
     public void onLocationChanged(Location location) {
         Log.i(LOGTAG, "Recibida nueva ubicación!");
-        BDAutobuses usdbh = new BDAutobuses(this, "DBHorarioDAM", null, MainActivity.VERSIO_BBDD);
-        SQLiteDatabase db = usdbh.getWritableDatabase();
-        String aux = "INSERT INTO posiciones VALUES(?,?,?,?)";
-        SQLiteStatement sql = db.compileStatement(aux);
-        sql.bindString(1, matricula);
-        sql.bindDouble(2, location.getLatitude());
-        sql.bindDouble(3, location.getLongitude());
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         String da = formatter.format(Calendar.getInstance().getTime());
-        sql.bindString(4, da);
-        sql.execute();
-        db.close();
-        tareaWSInsertarPosicion.execute(Double.toString(location.getLatitude()), Double.toString(location.getLongitude()), da);
+        new TareaWSInsertarPosicion().execute(location.getLatitude(), location.getLongitude(), da);
     }
 
-    public static boolean checkPermission(final Context context) {
-        return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
+    class TareaWSInsertarPosicion extends AsyncTask<Object, Integer, Boolean> {
 
-    class TareaWSInsertarPosicion extends AsyncTask<String, Integer, Boolean> {
 
-        protected Boolean doInBackground(String... params) {
-
-            boolean resul = true;
-
-            HttpClient httpClient = new DefaultHttpClient();
-
-            HttpPost post = new HttpPost("http://192.168.120.112:8080/ServicioWeb/webresources/generic/insertarPosicion");
-            post.setHeader("content-type", "application/json");
-            System.out.println("hola");
-            try {
-                //Construimos el objeto posicion en formato JSON
-                JSONObject dato = new JSONObject();
-                dato.put("matricula",matricula);
-                dato.put("posx", Double.parseDouble(params[0]));
-                dato.put("posy", Double.parseDouble(params[1]));
-                dato.put("fecha", params[2]);
-                StringEntity entity = new StringEntity(dato.toString());
-                post.setEntity(entity);
-                HttpResponse resp = httpClient.execute(post);
-                String respStr = EntityUtils.toString(resp.getEntity());
-                System.out.println("roger");
-                if (!respStr.equals("true")) {
-                    resul = false;
-                    System.out.println("roger 2");
-                }
-            } catch (Exception ex) {
-                Log.e("ServicioRest", "Error!", ex);
-                resul = false;
-            }
-            return resul;
+        /**
+         * Les tasques que s'efectuen en Background. Primer, s'intenta inserir a la BBDD externa.
+         * Si no s'aconsegueix inserir a la externa, al inserirla a l'interna s'especifica que no
+         * s'ha inserit a l'externa.
+         *
+         * @param params Double posX, Double posY, String fecha
+         * @return si s'ha aconseguit inserir en BBDD externa o no.
+         */
+        protected Boolean doInBackground(Object... params) {
+            boolean insertadoEnDBexterna = insertarEnBDExterna(params);
+            insertarenBDinterna(db, insertadoEnDBexterna, params);
+            return insertadoEnDBexterna;
         }
 
+        /**
+         * Metode que s'executa al acabar la AsyncTask. Registra al log si la posicio ha estat
+         * inserhida a la BBDD externa
+         * @param result
+         */
         protected void onPostExecute(Boolean result) {
-            System.out.println("hola");
             if (!result) {
-                Log.i("Servicio", "No ha funcionado la insercion");
+                Log.e(LOGTAG, "Fallo al insertar en BBDD extena");
             } else {
-                Log.i("Servicio", "Ha funcionado la insercion");
+                Log.d(LOGTAG, "Posicion insertada en BBDD externa");
             }
         }
 
+        /**
+         * Inserta una posicio a la BBDD interna del telefon.
+         * @param db
+         * @param insertadoEnDBexterna Boolean que indica si la posicio s'ha pogut inserir a la externa
+         * @param params               Double posX, Double posY, String fecha
+         */
+        private void insertarenBDinterna(SQLiteDatabase db, boolean insertadoEnDBexterna, Object... params) {
+            String aux = "INSERT INTO posiciones VALUES(?,?,?,?,?)";
+            SQLiteStatement sql = db.compileStatement(aux);
+            sql.bindString(1, matricula);
+            sql.bindDouble(2, (Double) params[0]);
+            sql.bindDouble(3, (Double) params[1]);
+            sql.bindString(4, (String) params[2]);
+            sql.bindString(5, Boolean.toString(insertadoEnDBexterna));
+            sql.execute();
+        }
+
+        /**
+         * @param params Double posX, Double posY, String fecha
+         * @return Boolean indicant si s'ha inserit a la BBDD externa o no.
+         */
+        private boolean insertarEnBDExterna(Object... params) {
+            boolean insertadoEnDBexterna = true;
+            OutputStreamWriter osw;
+            try {
+                URL url = new URL("http://192.168.1.9:8080/ServicioWeb/webresources/generic/insertarPosicion");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("PUT");
+                conn.setReadTimeout(1000 /*milliseconds*/);
+                conn.setConnectTimeout(500);
+                conn.setRequestProperty("Content-Type", "application/json");
+                osw = new OutputStreamWriter(conn.getOutputStream());
+                osw.write(getStringJSON(params));
+                osw.flush();
+                osw.close();
+                System.err.println(conn.getResponseMessage());
+            } catch (java.io.IOException ex) {
+                Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD extena");
+                insertadoEnDBexterna = false;
+            } catch (org.json.JSONException ex) {
+                Log.e(LOGTAG, "Error en la transformacio de l'objecte JSON: " + ex);
+                insertadoEnDBexterna = false;
+            }
+            return insertadoEnDBexterna;
+        }
+
+        /**
+         * Obte una String  (Objecte JSon) preparada per ser inserida a la nostra BBDD mitjançant un http put
+         *
+         * @param params Double posX, Double posY, String fecha
+         * @return L'string preparat per ser insertat a la BBDD
+         * @throws JSONException
+         * @throws UnsupportedEncodingException
+         */
+        private String getStringJSON(Object... params) throws JSONException, UnsupportedEncodingException {
+            JSONObject dato = new JSONObject();
+            dato.put("matricula", matricula);
+            dato.put("posX", params[0]);
+            dato.put("posY", params[1]);
+            dato.put("fecha", params[2]);
+            Log.d(LOGTAG, "La posicion que se insertara es:" + dato.toString());
+            return dato.toString();
+        }
 
     }
 }

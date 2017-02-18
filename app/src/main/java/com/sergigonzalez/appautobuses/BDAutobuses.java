@@ -5,13 +5,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * Created by ALUMNEDAM on 11/01/2017.
+ * Projecte APPAutobuses
+ * @author Abel Serrano, Sergi Gonazalez, Roger G.
+ * Created by ALUMNEDAM on 20/12/2016.
  */
 
 class BDAutobuses extends SQLiteOpenHelper {
 
     private String[] sentenciasTablas = {"CREATE TABLE usuarios (matricula VARCHAR2(7),password VARCHAR2(40))", "CREATE TABLE posiciones (matricula VARCHAR2(7)," +
-            "posX NUMBER, posY NUMBER, fecha String)"};
+            "posX NUMBER, posY NUMBER, fecha String, enBBDDexterna boolean)"};
     private String[] sentenciasInsert = {"INSERT INTO usuarios VALUES('4617DNO', 'supervaca')", "INSERT INTO usuarios VALUES('8357YNP', 'superconejo')"};
 
     BDAutobuses(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
