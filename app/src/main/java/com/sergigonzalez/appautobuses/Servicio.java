@@ -44,14 +44,17 @@ public class Servicio extends Service
         implements GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
         com.google.android.gms.location.LocationListener {
+
     private static final String LOGTAG = "android-localizacion";
+    private static final int TEMPS_ACTUALITZACIO_POSICIONES = 8000;
+    private static final int MINIM_TEMPS_ACTUALITZACIO_POSICIONES = 5000;
+
     SQLiteDatabase db;
     private GoogleApiClient apiClient;
     private LocationRequest locRequest;
     private String matricula;
 
-    private static final int TEMPS_ACTUALITZACIO_POSICIONES = 8000;
-    private static final int MINIM_TEMPS_ACTUALITZACIO_POSICIONES = 5000;
+
 
 
     @Override
