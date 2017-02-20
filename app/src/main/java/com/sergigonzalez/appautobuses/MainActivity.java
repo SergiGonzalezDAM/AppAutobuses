@@ -55,9 +55,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         db.close();
     }
 
-    public void cerrarDB() {
-        db.close();
-    }
 
     public boolean login() {
         String matricula, password;
@@ -65,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         password = editTextPassword.getText().toString();
         String consulta = "SELECT matricula, password FROM usuarios WHERE matricula='" + matricula + "' AND password='" + password + "'";
         Cursor c = db.rawQuery(consulta, null);
+
+
+
         if (c.getCount() == 0) {
             Toast.makeText(this, "Login fallido", Toast.LENGTH_SHORT).show();
             c.close();

@@ -46,13 +46,15 @@ public class Servicio extends Service
         com.google.android.gms.location.LocationListener {
 
     private static final String LOGTAG = "android-localizacion";
-    private static final int TEMPS_ACTUALITZACIO_POSICIONES = 8000;
-    private static final int MINIM_TEMPS_ACTUALITZACIO_POSICIONES = 5000;
+    private static final int TEMPS_ACTUALITZACIO_POSICIONES = 3000;
+    private static final int MINIM_TEMPS_ACTUALITZACIO_POSICIONES = 500;
 
     SQLiteDatabase db;
     private GoogleApiClient apiClient;
     private LocationRequest locRequest;
     private String matricula;
+    //private final String direccioServidor="http://192.168.1.9:8080";
+    private final String direccioServidor="http://server.blusoft.net:8080";
 
 
 
@@ -164,8 +166,8 @@ public class Servicio extends Service
     public void onLocationChanged(Location location) {
         Log.i(LOGTAG, "Recibida nueva ubicación!");
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        String da = formatter.format(Calendar.getInstance().getTime());
-        new TareaWSInsertarPosicion().execute(location.getLatitude(), location.getLongitude(), da);
+        String fechaPosicion = formatter.format(Calendar.getInstance().getTime());
+        new TareaWSInsertarPosicion().execute(location.getLatitude(), location.getLongitude(), fechaPosicion);
     }
 
     class TareaWSInsertarPosicion extends AsyncTask<Object, Integer, Boolean> {
@@ -223,11 +225,12 @@ public class Servicio extends Service
             boolean insertadoEnDBexterna = true;
             OutputStreamWriter osw;
             try {
-                URL url = new URL("http://192.168.1.9:8080/ServicioWeb/webresources/generic/insertarPosicion");
+                String aux=(direccioServidor+"/ServicioWeb/webresources/generic/insertarPosicion");
+                URL url = new URL(aux);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("PUT");
-                conn.setReadTimeout(1000 /*milliseconds*/);
-                conn.setConnectTimeout(500);
+                conn.setReadTimeout(5000);/*milliseconds*/
+                conn.setConnectTimeout(5000);
                 conn.setRequestProperty("Content-Type", "application/json");
                 osw = new OutputStreamWriter(conn.getOutputStream());
                 osw.write(getStringJSON(params));
@@ -235,7 +238,7 @@ public class Servicio extends Service
                 osw.close();
                 System.err.println(conn.getResponseMessage());
             } catch (java.io.IOException ex) {
-                Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD extena");
+                Log.e(LOGTAG, "Temps d'espera esgotat al iniciar la conexio amb la BBDD extena"+ex);
                 insertadoEnDBexterna = false;
             } catch (org.json.JSONException ex) {
                 Log.e(LOGTAG, "Error en la transformacio de l'objecte JSON: " + ex);
