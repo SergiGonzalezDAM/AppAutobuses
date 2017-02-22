@@ -122,6 +122,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(i);
     }
 
+    /**
+     * Ths method checks if the Service passed as parameter is running or not.
+     * @param serviceClass
+     * @return
+     */
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -132,6 +137,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
+    /**
+     * If we don't have the required permisions, starts a dialog asking for them.
+     */
     private void showPermissionDialog() {
         if (!Servicio.checkPermission(this)) {
             Log.i("Main-Permisions", "Permisos incorrectos, solicitandolos...");
@@ -142,6 +150,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Checks the result of the Request for Permisions dialog if the permisions are ok, executes the launch() method.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
