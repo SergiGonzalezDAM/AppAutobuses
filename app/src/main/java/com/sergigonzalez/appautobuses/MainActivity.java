@@ -25,6 +25,11 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    /**
+     * Declaramos las variables globales de los tipos creados en el layout(EditText,...), creamos
+     * el objecto de SQLLiteDataBase para poder acceder a las base de datos interna, además creamos
+     * una versión de la bd y los permisos de localización
+     */
     private EditText editTextMatricula;
     private EditText editTextPassword;
     private Button buttonMainSend;
@@ -32,7 +37,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected final static int VERSIO_BBDD=3;
     final private int PERMISSION_LOCATION_REQUEST_CODE = 666;
 
-
+    /**
+     * Instanciamosla variables creadas anteriormente y a la hora de crear la base de datos, this(activity), DBHorarioDAM(nombre),
+     * null(se deja por defecto), VERSIO_BBDD(la versión de la base de datos)Entonces, en el caso de que la
+     * aplicación se haya cerrado de forma incorrecta y el servicio de segundo plano esté ejecutándose,
+     * saltará directamente al segundo layout que veremos más tarde.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,13 +60,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * El método se inicia en el caso de que por algún factor se cierre la aplicación, entonces cerraremos la conexión con la base de datos.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
         db.close();
     }
 
-
+    /**
+     *Obtenemos los datos del Activity y realizamos una consulta, en el caso de que la consulta
+     * devuelva algo cerramos el cursor y devolvemos true, en caso contrario mensaje por pantalla con un Toast y false
+     * @return true o false, depende de la situación
+     */
     public boolean login() {
         String matricula, password;
         matricula = editTextMatricula.getText().toString();
@@ -76,6 +94,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /**
+     * Cuando le demos click al botón, primero verificará el login, en el caso de que sea correcto, verificará permisos, en el caso de que sea correcto
+     * lanzará un aviso pidiendo permisos, en caso negativo lanzará el activity siguiente.
+     * @param view
+     */
     @Override
     public void onClick(View view) {
         if (login()) {

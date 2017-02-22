@@ -14,7 +14,13 @@ import android.widget.Button;
 
 public class SPosiciones extends AppCompatActivity implements View.OnClickListener
 {
-
+    /**
+     * Iniciamos el activity recogiendo los datos que nos haya llegado del Main, inicializamos
+     * los datos del Main y del layout, en el caso de que venga del Main el activity savedInstanceState será null por lo que
+     * entrará en el if y recogerá los datos, además, pasará a Servicio.class los datos de la matricula.
+     * sa
+     *
+     */
     String matricula;
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,6 +39,10 @@ public class SPosiciones extends AppCompatActivity implements View.OnClickListen
 
     }
 
+    /**
+     * Cuando le demos al botón
+     * @param view
+     */
     @Override
     public void onClick(View view)
     {
